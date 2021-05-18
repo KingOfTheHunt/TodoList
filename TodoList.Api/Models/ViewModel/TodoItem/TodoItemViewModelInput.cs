@@ -7,6 +7,6 @@ namespace TodoList.Api.Models.ViewModel.TodoItem
         [Required]
         public string Name { get; set; }
         [Required]
-        public bool IsCompleted { get; set; }
+        public bool IsCompleted { get; set; } = false;
     }
 }
