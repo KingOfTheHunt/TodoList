@@ -5,6 +5,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TodoList.Api.Data;
+using TodoList.Api.Repositories;
+using TodoList.Api.Services;
 
 namespace TodoList.Api
 {
@@ -25,6 +27,10 @@ namespace TodoList.Api
             services.AddDbContext<TodoListDbContext>(options => 
                 options.UseMySql(Configuration.GetConnectionString("TodoListDbContext"), 
                 builder => builder.MigrationsAssembly("TodoList.Api")));
+
+            // Injetando a dependencia do repository.
+            services.AddScoped<TodoItemRepository>();
+            services.AddScoped<TodoItemService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
