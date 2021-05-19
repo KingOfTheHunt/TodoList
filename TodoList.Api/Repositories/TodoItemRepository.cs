@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TodoList.Api.Data;
@@ -44,8 +45,22 @@ namespace TodoList.Api.Repositories
 
         public async Task Update(TodoItem t)
         {
-            _context.Update(t);
-            await _context.SaveChangesAsync();
+            try
+            {
+                var hasAny = await _context.Tasks.AnyAsync(x => x.Id == t.Id);
+
+                if (hasAny == false)
+                {
+                    return;
+                }
+
+                _context.Update(t);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException e)
+            {
+                throw new Exception(e.Message);
+            }
         }
     }
 }
