@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading.Tasks;
 using TodoList.Api.Models;
 using TodoList.Api.Models.ViewModel.TodoItem;
@@ -30,23 +31,32 @@ namespace TodoList.Api.Controllers
         [Route("all")]
         public async Task<IActionResult> Get()
         {
-            var tasks = await _service.GetTasks();
+            try
+            {
+                var tasks = await _service.GetTasks();
 
-            return Ok(tasks);
+                return Ok(tasks);
+            }
+            catch (ApplicationException e)
+            {
+                return NotFound(e.Message);
+            }
         }
 
         [HttpGet]
         [Route("find/{id}")]
         public async Task<IActionResult> Get(int? id)
         {
-            var task = await _service.GetTask(id);
-
-            if (task == null)
+            try
             {
-                return NotFound("A tarefa não foi encontrada!");
-            }
+                var task = await _service.GetTask(id);
 
-            return Ok(task);
+                return Ok(task);
+            }
+            catch (ApplicationException e)
+            {
+                return NotFound(e.Message);
+            }
         }
 
         [HttpPut]
@@ -55,13 +65,17 @@ namespace TodoList.Api.Controllers
         {
             try
             {
-                await _service.UpdateTask(todoItem);
+                await _service.UpdateTask(id, todoItem);
 
                 return Ok(todoItem);
             }
-            catch (System.Exception e)
+            catch (Exceptions.DbUpdateException e)
             {
                 return BadRequest(e.Message);
+            }
+            catch (ApplicationException e)
+            {
+                return NotFound(e.Message);
             }
         }
     }

@@ -1,8 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using TodoList.Api.Data;
+using TodoList.Api.Exceptions;
 using TodoList.Api.Models;
 
 namespace TodoList.Api.Repositories
@@ -32,6 +34,10 @@ namespace TodoList.Api.Repositories
 
         public async Task<List<TodoItem>> FindAll()
         {
+            if (_context.Tasks.Any() == false)
+            {
+                throw new NotFoundException("Não há nenhuma tarefa no banco");
+            }
             var tasks = await _context.Tasks.ToListAsync();
 
             return tasks;
@@ -51,7 +57,7 @@ namespace TodoList.Api.Repositories
 
                 if (hasAny == false)
                 {
-                    return;
+                    throw new NotFoundException("Não há nenhuma tarefa com este id!");
                 }
 
                 _context.Update(t);
@@ -59,7 +65,11 @@ namespace TodoList.Api.Repositories
             }
             catch (DbUpdateConcurrencyException e)
             {
-                throw new Exception(e.Message);
+                throw new Exceptions.DbUpdateException(e.Message);
+            }
+            catch (NotFoundException e)
+            {
+                throw new NotFoundException(e.Message);
             }
         }
     }

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using TodoList.Api.Exceptions;
 using TodoList.Api.Models;
 using TodoList.Api.Models.ViewModel.TodoItem;
 using TodoList.Api.Repositories;
@@ -30,21 +31,28 @@ namespace TodoList.Api.Services
 
         public async Task<List<TodoItem>> GetTasks()
         {
-            return await _repository.FindAll();
+            try
+            {
+                return await _repository.FindAll();
+            }
+            catch (NotFoundException e)
+            {
+                throw new NotFoundException(e.Message);
+            }
         }
 
         public async Task<TodoItem> GetTask(int? id)
         {
             if (id == null)
             {
-                return null;
+                throw new Exception("O id não foi informado!");
             }
 
             var task = await _repository.Find(id.Value);
 
             if (task == null)
             {
-                return null;
+                throw new NotFoundException("Não existe uma tarefa com este id!");
             }
 
             return task;
@@ -54,6 +62,12 @@ namespace TodoList.Api.Services
         {
             if (id == null)
             {
+                throw new Exception("O id não foi informado!");
+            }
+
+            if (id != todoItem.Id)
+            {
+                throw new Exception("O id informado na url é diferente do id da tarefa!");
             }
 
             try
@@ -62,7 +76,11 @@ namespace TodoList.Api.Services
             }
             catch (DbUpdateConcurrencyException e)
             {
-                throw new Exception(e.Message);
+                throw new Exceptions.DbUpdateException(e.Message);
+            }
+            catch (NotFoundException e)
+            {
+                throw new NotFoundException(e.Message);
             }
         }
     }
