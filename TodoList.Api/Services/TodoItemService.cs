@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using TodoList.Api.Models;
 using TodoList.Api.Models.ViewModel.TodoItem;
@@ -26,9 +28,42 @@ namespace TodoList.Api.Services
             await _repository.Save(todoItem);
         }
 
-        public async Task<List<TodoItem>> GetAll()
+        public async Task<List<TodoItem>> GetTasks()
         {
             return await _repository.FindAll();
+        }
+
+        public async Task<TodoItem> GetTask(int? id)
+        {
+            if (id == null)
+            {
+                return null;
+            }
+
+            var task = await _repository.Find(id.Value);
+
+            if (task == null)
+            {
+                return null;
+            }
+
+            return task;
+        }
+
+        public async Task UpdateTask(int? id, TodoItem todoItem)
+        {
+            if (id == null)
+            {
+            }
+
+            try
+            {
+                await _repository.Update(todoItem);
+            }
+            catch (DbUpdateConcurrencyException e)
+            {
+                throw new Exception(e.Message);
+            }
         }
     }
 }
