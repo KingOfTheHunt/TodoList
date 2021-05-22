@@ -20,9 +20,22 @@ namespace TodoList.Api.Repositories
 
         public async Task Delete(int id)
         {
-            var task = await Find(id);
-            _context.Remove(task);
-            await _context.SaveChangesAsync();
+            var hasTask = _context.Tasks.Any(x => x.Id == id);
+
+            if (hasTask == false)
+            {
+                throw new NotFoundException("A tarefa não existe.");
+            }
+            try
+            {
+                var task = await _context.Tasks.FirstOrDefaultAsync(x => x.Id == id);
+                _context.Remove(task);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
         }
 
         public async Task<TodoItem> Find(int id)

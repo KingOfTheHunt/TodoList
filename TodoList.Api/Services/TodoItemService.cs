@@ -83,5 +83,21 @@ namespace TodoList.Api.Services
                 throw new NotFoundException(e.Message);
             }
         }
+
+        public async Task DeleteTask(int id)
+        {
+            try
+            {
+                await _repository.Delete(id);
+            }
+            catch (NotFoundException e)
+            {
+                throw new NotFoundException(e.Message);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
     }
 }
