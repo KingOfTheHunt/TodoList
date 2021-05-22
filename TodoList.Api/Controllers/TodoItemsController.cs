@@ -77,6 +77,30 @@ namespace TodoList.Api.Controllers
             {
                 return NotFound(e.Message);
             }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpDelete]
+        [Route("delete/{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            try
+            {
+                await _service.DeleteTask(id);
+
+                return Ok(new { message = "Deletado com sucesso!" });
+            }
+            catch (ApplicationException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
     }
 }
